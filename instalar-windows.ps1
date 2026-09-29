@@ -89,6 +89,10 @@ function Instalar-FFmpeg-Zip {
   Ok "ffmpeg em $($exe.DirectoryName)"
 }
 
+# le o PATH atual do registro: um PowerShell aberto antes de uma instalacao
+# anterior nao enxerga o que foi instalado (e baixaria tudo de novo)
+Atualizar-Path
+
 $origem = $PSScriptRoot
 $destino = Join-Path $env:USERPROFILE '.claude\plugins-local\video-imovel'
 $pastaUsuario = Join-Path $env:USERPROFILE '.video-imovel'
