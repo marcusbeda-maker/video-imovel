@@ -40,11 +40,53 @@ function Python-Cmd {
 
 function Instalar-Winget($id, $comando) {
   if (Tem $comando) { Ok "$comando ja instalado"; return }
-  if (-not (Tem 'winget')) { throw "winget nao encontrado. Atualize o 'Instalador de Aplicativo' na Microsoft Store e rode de novo." }
+  if (-not (Tem 'winget')) {
+    if ($id -eq 'Gyan.FFmpeg') { Instalar-FFmpeg-Zip; return }
+    if ($id -eq 'OpenJS.NodeJS.LTS') { throw "Falta o Node.js e nao ha winget. Instale o LTS em https://nodejs.org , feche o PowerShell, abra outro e rode de novo." }
+    throw "Falta o Python e nao ha winget. Instale em https://www.python.org/downloads/ (marque 'Add python.exe to PATH'), feche o PowerShell, abra outro e rode de novo."
+  }
   Write-Host "    instalando $id ..."
   winget install --id $id -e --silent --accept-source-agreements --accept-package-agreements | Out-Host
   Atualizar-Path
   if (Tem $comando) { Ok "$comando instalado" } else { Aviso "$comando instalado, mas so aparece num PowerShell NOVO. Feche, abra outro e rode este script de novo." }
+}
+
+function Adicionar-PathUsuario($pasta) {
+  $pathUsuario = [Environment]::GetEnvironmentVariable('Path', 'User')
+  if ($pathUsuario -notlike "*$pasta*") {
+    [Environment]::SetEnvironmentVariable('Path', "$pathUsuario;$pasta", 'User')
+  }
+  Atualizar-Path
+}
+
+# Sem winget: baixa o FFmpeg pronto (build "essentials" do gyan.dev, indicado no
+# site oficial ffmpeg.org; se falhar, o espelho do BtbN no GitHub).
+function Instalar-FFmpeg-Zip {
+  $pasta = Join-Path $pastaUsuario 'ffmpeg'
+  New-Item -ItemType Directory -Force -Path $pasta | Out-Null
+  $zip = Join-Path $pasta 'ffmpeg.zip'
+  $urls = @(
+    'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip',
+    'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip'
+  )
+  $baixou = $false
+  foreach ($u in $urls) {
+    try {
+      Write-Host "    baixando $u (100-190 MB, pode demorar)"
+      Invoke-WebRequest -Uri $u -OutFile $zip
+      $baixou = $true
+      break
+    } catch {
+      Aviso "falhou: $u"
+    }
+  }
+  if (-not $baixou) { throw "Nao consegui baixar o FFmpeg. Baixe manualmente em https://www.gyan.dev/ffmpeg/builds/ e me avise." }
+  Expand-Archive -Path $zip -DestinationPath $pasta -Force
+  Remove-Item $zip -Force
+  $exe = Get-ChildItem -Path $pasta -Recurse -Filter 'ffmpeg.exe' | Select-Object -First 1
+  if (-not $exe) { throw "Baixei o FFmpeg, mas nao achei ffmpeg.exe dentro do zip." }
+  Adicionar-PathUsuario $exe.DirectoryName
+  Ok "ffmpeg em $($exe.DirectoryName)"
 }
 
 $origem = $PSScriptRoot
@@ -85,13 +127,8 @@ if (Tem 'whisper-cli') {
   Expand-Archive -Path $zip -DestinationPath $pastaWhisper -Force
   $exe = Get-ChildItem -Path $pastaWhisper -Recurse -Filter 'whisper-cli.exe' | Select-Object -First 1
   if (-not $exe) { throw "Baixei o whisper, mas nao achei whisper-cli.exe dentro do zip." }
-  $pastaExe = $exe.DirectoryName
-  $pathUsuario = [Environment]::GetEnvironmentVariable('Path', 'User')
-  if ($pathUsuario -notlike "*$pastaExe*") {
-    [Environment]::SetEnvironmentVariable('Path', "$pathUsuario;$pastaExe", 'User')
-  }
-  Atualizar-Path
-  Ok "whisper-cli em $pastaExe"
+  Adicionar-PathUsuario $exe.DirectoryName
+  Ok "whisper-cli em $($exe.DirectoryName)"
 }
 
 # 4. modelo de transcricao ----------------------------------------------------
