@@ -146,13 +146,16 @@ manda no tempo.
 
 ## Passo 0 — Dependências (resolva sem alarde, instale só o que falta)
 
+No Windows, o jeito mais simples é o instalador do plugin, que faz tudo de uma vez:
+`powershell -ExecutionPolicy Bypass -File "<plugin>\instalar-windows.ps1"`.
+
 | Ferramenta | Checagem | Instalar (Windows) | Instalar (macOS/Linux) |
 |---|---|---|---|
 | Node.js 18+ | `node --version` | `winget install OpenJS.NodeJS.LTS` | `brew install node` / pacote da distro |
 | ffmpeg | `ffmpeg -version` | `winget install Gyan.FFmpeg` | `brew install ffmpeg` / `apt install ffmpeg` |
-| whisper-cli | `whisper-cli --help` | `winget install ggerganov.whisper.cpp` ou `scoop install whisper-cpp` | `brew install whisper-cpp` |
+| whisper-cli | `whisper-cli --help` | rode `instalar-windows.ps1` do plugin (baixa `whisper-bin-x64.zip` v1.8.3 do GitHub oficial e põe no PATH) | `brew install whisper-cpp` |
 | uv (só se houver corte) | `uv --version` | `winget install astral-sh.uv` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| Python 3.10+ (legendas) | `python --version` | `winget install Python.Python.3.12` | já vem / pacote da distro |
+| Python 3.10+ (legendas) | `python --version` (no Windows, se falhar ou abrir a Microsoft Store, use `py`) | `winget install Python.Python.3.12` | já vem / pacote da distro |
 | edge-tts (só modo sintetica) | `edge-tts --help` | `pip install edge-tts` | igual |
 | piper-tts (só sem internet) | `python -m piper --help` | `pip install piper-tts` | igual |
 | Modelo whisper multilíngue | `~/.cache/whisper-ggml/ggml-small.bin` existe | `curl -sL -o ~/.cache/whisper-ggml/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin` (crie a pasta antes; ~466 MB) | igual |
