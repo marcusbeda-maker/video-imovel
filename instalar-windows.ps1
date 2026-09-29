@@ -148,7 +148,10 @@ if ((Test-Path $modelo) -and ((Get-Item $modelo).Length -gt 400MB)) {
 Passo "5/6 Vozes (edge-tts)"
 $py = Python-Cmd
 if ($py) {
-  & $py -m pip install --user --quiet --upgrade edge-tts | Out-Host
+  & $py -m pip install --user --quiet --upgrade --no-warn-script-location edge-tts | Out-Host
+  # poe a pasta Scripts do Python do usuario no PATH (para o comando edge-tts funcionar)
+  $scripts = & $py -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt_user'))"
+  if ($scripts -and (Test-Path $scripts)) { Adicionar-PathUsuario $scripts }
   Ok "edge-tts instalado (vozes pt-BR-FranciscaNeural e pt-BR-AntonioNeural)"
 } else {
   Aviso "Python ainda nao aparece neste PowerShell. Abra um PowerShell NOVO e rode o script de novo."
