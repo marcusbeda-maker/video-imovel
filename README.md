@@ -21,7 +21,17 @@ API e sem mandar o vídeo para lugar nenhum.
 
 ## Instalar
 
-Dentro do Claude Code:
+**Windows (recomendado):** baixe o zip do repositório (botão verde **Code** →
+**Download ZIP**), extraia e rode no PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "CAMINHO\video-imovel\instalar-windows.ps1"
+```
+
+Ele instala as dependências e mostra os dois comandos para o Claude Code.
+
+**Direto pelo GitHub**, dentro do Claude Code (as dependências são instaladas
+na primeira execução):
 
 ```
 /plugin marketplace add marcusbeda-maker/video-imovel

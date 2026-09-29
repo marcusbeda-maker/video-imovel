@@ -9,10 +9,10 @@ vídeo de imóvel em português: `/video-imovel <video> [formatos] [narração] 
   `OPENAI_API_KEY` no ambiente ou `.env.local` na pasta do vídeo.
 - Remotion: licença grátis para pessoa física (é o caso do Marcus). Empresa com
   4+ funcionários precisa de licença paga.
-- Repositório destino: `marcusbeda-maker/video-imovel` (público). Em 29/09/2026 a
-  integração do Claude não tinha permissão para criar repositório (403); cópia
-  provisória no branch `claude/zealous-bardeen-p276cx` do `hub-imoveis`, pasta
-  `video-imovel/`.
+- Repositório: https://github.com/marcusbeda-maker/video-imovel (público, branch
+  `main`), criado pelo Marcus em 29/09/2026. Existe também uma cópia provisória
+  antiga na pasta `video-imovel/` do branch `claude/zealous-bardeen-p276cx` do
+  `hub-imoveis` — pode ser apagada depois de confirmar o repositório próprio.
 - Regra de ouro: **nunca inventar dado de imóvel** (preço, m², quartos, bairro).
   Só o que está no briefing, na fala ou no roteiro; cada dado vai para
   `edit/ficha.md` com a fonte.
@@ -39,7 +39,7 @@ vídeo de imóvel em português: `/video-imovel <video> [formatos] [narração] 
   de ponta a ponta, `instalar-windows.ps1` (sem PowerShell na nuvem).
 
 ## Pendências
-- Criar o repositório `video-imovel` no GitHub e subir (ou mover do hub-imoveis).
+- Apagar a cópia provisória no branch do hub-imoveis (quando o Marcus autorizar).
 - Marcus preencher `%USERPROFILE%\.video-imovel\marca.json` (nome, CRECI, WhatsApp, @, logo, cores).
 - Primeiro teste real no notebook; ouvir as vozes Francisca/Antonio.
 - Ideias futuras: Azure Speech oficial ou ElevenLabs (voz clonada do Marcus).
