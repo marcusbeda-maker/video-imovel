@@ -90,6 +90,7 @@ A identidade fica em `~/.video-imovel/marca.json` (no Windows,
   "whatsapp": "62999998888",
   "instagram": "@usuario",
   "logo": "logo.png",
+  "logoCompleto": false,
   "cor": "#1B6E4B",
   "cor2": "#C9A45C",
   "fonte": "'Montserrat', 'Segoe UI', Arial, sans-serif"
@@ -102,6 +103,9 @@ A identidade fica em `~/.video-imovel/marca.json` (no Windows,
   defeito). Avise no relatório final como preencher.
 - Campo vazio = elemento não aparece. Nunca invente CRECI, telefone ou @.
 - `cor` e `cor2` sobrepõem as cores do preset (`presetDaMarca`).
+- `logoCompleto: true` quando a logo já traz nome e CRECI: o `CorretorCard`
+  mostra só a logo grande (e o @), sem repetir o texto. Logo ideal: PNG com
+  fundo transparente.
 
 ## Narração — quatro modos
 

@@ -346,6 +346,7 @@ export const Selo: React.FC<{
 };
 
 // ---------- CorretorCard: logo + nome + CRECI + @instagram (dados de marca.json) ----------
+// Com "logoCompleto": true (logo que já contém nome/CRECI), mostra só a logo grande + @.
 export const CorretorCard: React.FC<{
   p: Preset;
   dur: number;
@@ -358,6 +359,49 @@ export const CorretorCard: React.FC<{
   const s = useEntrada(4, 12);
   const out = fadeOut(frame, dur - 22);
   const largura = larguraCard(L, 0.78);
+  if (marca.logo && marca.logoCompleto) {
+    // a logo já traz nome e CRECI: mostra só ela, grande, sem card por trás
+    const lado = L.vertical ? largura * 0.5 : L.h * 0.3;
+    return (
+      <AbsoluteFill>
+        <div
+          style={{
+            ...posicionar(L, v, h, largura),
+            marginTop: floatY(frame, 2, 5 * u),
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            transform: `scale(${0.75 + s * 0.25}) translateY(${(1 - s) * 60 * u}px)`,
+            opacity: s * out,
+          }}
+        >
+          <Img
+            src={staticFile(marca.logo)}
+            style={{
+              width: lado,
+              height: lado,
+              objectFit: 'contain',
+              filter: `drop-shadow(0 ${6 * u}px ${18 * u}px rgba(0,0,0,0.55))`,
+            }}
+          />
+          {marca.instagram && (
+            <div
+              style={{
+                marginTop: 6 * u,
+                fontFamily: p.font,
+                fontSize: 34 * u,
+                fontWeight: 900,
+                color: '#fff',
+                textShadow: `0 ${2 * u}px ${12 * u}px rgba(0,0,0,0.75)`,
+              }}
+            >
+              {marca.instagram}
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill>
       <div

@@ -11,6 +11,8 @@ export type Marca = {
   whatsapp: string;
   instagram: string;
   logo: string;
+  /** true quando a logo já traz nome e CRECI: o CorretorCard mostra só a logo */
+  logoCompleto?: boolean;
   cor: string;
   cor2: string;
   fonte: string;

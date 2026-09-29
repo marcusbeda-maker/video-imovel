@@ -53,11 +53,15 @@ Crie `%USERPROFILE%\.video-imovel\marca.json` (Windows) ou
   "whatsapp": "62999998888",
   "instagram": "@seuusuario",
   "logo": "logo.png",
+  "logoCompleto": false,
   "cor": "#1B6E4B",
   "cor2": "#C9A45C",
   "fonte": "'Montserrat', 'Segoe UI', Arial, sans-serif"
 }
 ```
+
+Use logo em **PNG com fundo transparente**. Se a logo já tem seu nome e CRECI
+escritos, ponha `"logoCompleto": true` para o vídeo mostrar só a logo, sem repetir.
 
 Campo vazio não aparece no vídeo. Sem esse arquivo, o vídeo sai sem cartão do
 corretor e sem número no botão de WhatsApp.
