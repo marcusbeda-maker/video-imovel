@@ -13,6 +13,7 @@ Alterações no video-imovel:
 - Formatos 9:16, 1:1 e 16:9 (`template/src/formatos.ts`, `components/Fundo.tsx`)
 - Gerador de vídeo de teste (`template/teste/`)
 - Skill reescrita em português, com regra de não inventar dado do imóvel
+- Narração: `engine/narrar.py` (edge-tts / Piper, instalados à parte, não incluídos), `components/Narracao.tsx`, vídeo em repetição no `Fundo`
 - `DigitRoll.tsx`: espaços preservados (`white-space: pre`) para "R$ 850.000"
 
 ## engine/roughcut.py

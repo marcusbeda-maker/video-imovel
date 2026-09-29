@@ -1,6 +1,6 @@
 ---
 name: video-imovel
-description: "Edita vídeo de imóvel do começo ao fim, em português: vídeo bruto entra, vídeo pronto para Reels/Feed/YouTube sai. Use com /video-imovel <arquivo> [formatos] [briefing]. Transcreve a narração localmente (whisper.cpp, sem chave de API), corta silêncios e regravações, coloca legendas estilo Reels palavra a palavra, cards de imóvel (preço, quartos, vagas, m², bairro, diferenciais, localização), selo, cartão do corretor e botão de WhatsApp, e renderiza em 9:16, 1:1 e/ou 16:9 no Remotion. Use quando pedirem para editar vídeo de imóvel, fazer Reels de apartamento/casa, colocar legenda em vídeo, ou transformar gravação bruta em anúncio."
+description: "Edita vídeo de imóvel do começo ao fim, em português: vídeo bruto entra, vídeo pronto para Reels/Feed/YouTube sai. Narração com a voz do próprio vídeo, áudio gravado à parte, voz sintética pt-BR feminina ou masculina a partir de um roteiro, ou só texto na tela. Use com /video-imovel <arquivo> [formatos] [briefing]. Transcreve a narração localmente (whisper.cpp, sem chave de API), corta silêncios e regravações, coloca legendas estilo Reels palavra a palavra, cards de imóvel (preço, quartos, vagas, m², bairro, diferenciais, localização), selo, cartão do corretor e botão de WhatsApp, e renderiza em 9:16, 1:1 e/ou 16:9 no Remotion. Use quando pedirem para editar vídeo de imóvel, fazer Reels de apartamento/casa, colocar legenda em vídeo, ou transformar gravação bruta em anúncio."
 ---
 
 # /video-imovel — do vídeo bruto ao anúncio pronto
@@ -13,10 +13,14 @@ registro de cada decisão que tomou por ele.
 Chamada:
 
 ```
-/video-imovel <arquivo> [reels|feed|youtube|todos] [briefing livre]
+/video-imovel <arquivo> [reels|feed|youtube|todos] [narração] [briefing livre]
 ```
 
-Exemplo: `/video-imovel C:\videos\apto-bueno.mp4 reels,feed apartamento 3 quartos no Setor Bueno, R$ 850 mil, CTA WhatsApp`
+Exemplos:
+- `/video-imovel C:\videos\apto-bueno.mp4 reels,feed apartamento 3 quartos no Setor Bueno, R$ 850 mil, CTA WhatsApp`
+- `/video-imovel C:\videos\tour.mp4 reels voz feminina roteiro: Aproveite a oportunidade de ter esse imóvel único pelo valor de 850 mil reais, aceita financiamento. Fale comigo agora!`
+- `/video-imovel C:\videos\tour.mp4 todos narração C:\audios\minha-voz.m4a`
+- `/video-imovel C:\videos\tour.mp4 reels só texto roteiro: C:\textos\roteiro.txt`
 
 **Ninguém está olhando esta execução.** Você não pergunta, não para para
 aprovação e não apresenta opções. Toda escolha vira inferência mais uma
@@ -99,6 +103,47 @@ A identidade fica em `~/.video-imovel/marca.json` (no Windows,
 - Campo vazio = elemento não aparece. Nunca invente CRECI, telefone ou @.
 - `cor` e `cor2` sobrepõem as cores do preset (`presetDaMarca`).
 
+## Narração — quatro modos
+
+Decida o modo pelo comando; na dúvida, `propria`. Registre em `decisions.md`.
+
+| Modo | Como pedir | O que acontece |
+|---|---|---|
+| **propria** (padrão) | nada, ou "minha voz" | A voz é o áudio do próprio vídeo. Fluxo normal: whisper, corte, legendas. |
+| **arquivo** | "narração <caminho do áudio>" | Áudio gravado à parte pelo corretor (celular, gravador). Vai para `public/`, toca por cima do vídeo; o som do vídeo fica em 0,15. Legendas: whisper nesse áudio. |
+| **sintetica** | "voz feminina" / "voz masculina" + roteiro | `engine/narrar.py` gera a voz em português a partir do roteiro. Legendas saem dos tempos da própria voz (não precisa de whisper com `--motor edge`). Som do vídeo em 0,15. |
+| **texto** | "só texto" / "sem narração" + roteiro | Sem voz. O roteiro vira legenda no ritmo de leitura (`narrar.py --voz nenhuma`). Som do vídeo em 0,3 (ambiente). |
+
+**Roteiro** (modos sintetica e texto): o texto depois de `roteiro:` no comando,
+ou um arquivo `.txt` indicado. Sem roteiro, escreva um curto (até ~25 s de
+fala) **só com dados da ficha** — nada inventado — e registre `roteiro: escrito
+pelo agente` com o texto em `decisions.md`. Números: escreva como se fala
+naturalmente ("850 mil reais"); o card mostra "R$ 850.000".
+
+**Gerar a voz:**
+
+```bash
+python <plugin>/engine/narrar.py --roteiro edit/roteiro.txt --voz feminina  --saida edit/narracao   # pt-BR-FranciscaNeural
+python <plugin>/engine/narrar.py --roteiro edit/roteiro.txt --voz masculina --saida edit/narracao   # pt-BR-AntonioNeural
+python <plugin>/engine/narrar.py --roteiro edit/roteiro.txt --voz nenhuma   --saida edit/narracao   # só texto
+```
+
+- Motor padrão `edge` (vozes neurais da Microsoft, grátis, sem chave, precisa de
+  internet). `--velocidade "+8%"` acelera um pouco — bom para Reels.
+- Sem internet (`BLOCKER: edge-tts falhou`): `--motor piper` gera a voz
+  **masculina** offline (`pt_BR-faber-medium`). Não existe voz feminina pt-BR
+  oficial no Piper: nesse caso caia para `masculina` e registre, ou use
+  `--modelo <voz.onnx>` se `~/.video-imovel/vozes/` tiver outra voz. Com piper,
+  rode o whisper no `.wav` para ter as legendas.
+- A saída `edit/narracao.json` tem o formato do whisper: entra direto em
+  `legendas.py` (passo 5).
+
+**Duração com narração:** o vídeo final dura a narração + ~1 s. Se o vídeo
+bruto for mais curto, `<Fundo>` repete o vídeo (registre); se for mais longo,
+o final é cortado no fim da narração. Nos modos arquivo/sintetica/texto **não
+rode o corte bruto** (passo 3/4): o vídeo vira imagem de apoio e a narração
+manda no tempo.
+
 ## Passo 0 — Dependências (resolva sem alarde, instale só o que falta)
 
 | Ferramenta | Checagem | Instalar (Windows) | Instalar (macOS/Linux) |
@@ -108,6 +153,8 @@ A identidade fica em `~/.video-imovel/marca.json` (no Windows,
 | whisper-cli | `whisper-cli --help` | `winget install ggerganov.whisper.cpp` ou `scoop install whisper-cpp` | `brew install whisper-cpp` |
 | uv (só se houver corte) | `uv --version` | `winget install astral-sh.uv` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | Python 3.10+ (legendas) | `python --version` | `winget install Python.Python.3.12` | já vem / pacote da distro |
+| edge-tts (só modo sintetica) | `edge-tts --help` | `pip install edge-tts` | igual |
+| piper-tts (só sem internet) | `python -m piper --help` | `pip install piper-tts` | igual |
 | Modelo whisper multilíngue | `~/.cache/whisper-ggml/ggml-small.bin` existe | `curl -sL -o ~/.cache/whisper-ggml/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin` (crie a pasta antes; ~466 MB) | igual |
 
 O Remotion não precisa de instalação global: o passo 6 roda `npm install` na
@@ -198,12 +245,16 @@ PYTHONPATH=. uv run --no-project --with "openai,rapidfuzz,numpy" python roughcut
    Confira `rows == samples`; se não bater, despache mais uma vez e siga com
    comportamento de `confidence: low`.
 2. Leia `edit/footage.md` inteiro (regra de ouro 2).
-3. Palavra a palavra no áudio do vídeo final:
+3. Palavra a palavra no áudio que **fala** no vídeo final (o do vídeo em
+   `propria`; o arquivo gravado em `arquivo`; o `.wav` em sintetica/piper). Em
+   sintetica/edge e em texto, pule este item: use `edit/narracao.json`.
    `whisper-cli -m <modelo> -f audio-final.wav -l pt -ml 1 -sow -oj -of edit/palavras`
    (`-sow` separa por palavra, não por pedaço de palavra).
 4. **Legendas:** ligadas por padrão. Desligue só se `burned_in_text` indicar
    legenda já queimada no vídeo (registre). Gere os dados:
    `python <plugin>/engine/legendas.py edit/palavras.json <trabalho>/src/legendas.data.ts`
+   (ou `edit/narracao.json` nos modos sintetica/texto). No modo texto as
+   legendas são o único conteúdo falado: nunca desligue.
    Corrija grafias de nomes próprios com `--corrigir "errado=Certo"` (bairro,
    empreendimento, rua) usando a ficha como referência. Nunca mexa nos tempos.
 5. Converta as palavras em batidas (frases) com início/fim em quadros no fps do
@@ -221,11 +272,17 @@ PYTHONPATH=. uv run --no-project --with "openai,rapidfuzz,numpy" python roughcut
 
 1. Copie `template/` para uma pasta de trabalho. `npm install --no-audit --no-fund`.
 2. Vídeo em `public/footage.mp4`; SFX em `public/sfx/`; `marca.json` em
-   `src/marca.json`; logo em `public/<logo>`.
-3. Preencha `src/config.ts`: `FPS`, `DURACAO_FRAMES` e `ORIGEM` exatamente iguais
-   ao vídeo final (ffprobe).
-4. Escreva `src/Timeline.tsx` a partir de `src/Timeline.exemplo-imovel.tsx`:
-   - `<Fundo origem={ORIGEM} />` sempre primeiro. Ele adapta o vídeo a cada
+   `src/marca.json`; logo em `public/<logo>`; áudio da narração (modos arquivo e
+   sintetica) em `public/narracao.<ext>`.
+3. Preencha `src/config.ts` com valores medidos (ffprobe): `FPS`, `ORIGEM`
+   (largura, altura e quadros do vídeo), `DURACAO_FRAMES` (vídeo final; com
+   narração, narração + ~1 s) e `NARRACAO` (modo, arquivo, volumeOriginal,
+   quadro de início).
+4. Escreva `src/Timeline.tsx` a partir de `src/Timeline.exemplo-imovel.tsx`
+   (vídeo com a voz do corretor) ou `src/Timeline.exemplo-texto.tsx` (roteiro
+   em texto ou voz sintética):
+   - `<Fundo origem={ORIGEM} volume={NARRACAO.volumeOriginal} />` e `<Narracao />`
+     sempre primeiro. Ele adapta o vídeo a cada
      formato: corta as bordas quando a proporção é parecida, ou centraliza com
      fundo desfocado quando é muito diferente (vertical em 16:9).
    - Cenas do kit imobiliário (`src/imovel.tsx`), que se adaptam a qualquer
@@ -282,8 +339,8 @@ PYTHONPATH=. uv run --no-project --with "openai,rapidfuzz,numpy" python roughcut
 MP4s em `exports/final/` ao lado do vídeo bruto, nomeados
 `<nome>-reels.mp4`, `<nome>-feed.mp4`, `<nome>-youtube.mp4`, junto com
 `edit/decisions.md` e `edit/ficha.md`. Abra a pasta. Relate em português:
-duração, formatos, cenas montadas, preset e a regra que o escolheu, o que foi
-cortado, os dados do imóvel mostrados **com a fonte de cada um**, toda
+duração, formatos, modo de narração (e a voz usada), cenas montadas, preset e a
+regra que o escolheu, o que foi cortado, os dados do imóvel mostrados **com a fonte de cada um**, toda
 suposição feita, e qualquer achado do crítico que foi entregue mesmo assim. Não
 cole transcrição nem conteúdo de arquivo no chat.
 
@@ -304,7 +361,10 @@ npm run teste:imagem           # teste.png, um quadro
 ## O que não fazer
 
 - **Inventar preço, metragem ou qualquer dado do imóvel.** Um número errado num
-  anúncio é pior do que nenhum número.
+  anúncio é pior do que nenhum número. Vale também para o roteiro que você
+  escreve para a voz sintética.
+- **Deixar a voz sintética falando por cima da voz original** em volume alto.
+  Nos modos arquivo/sintetica o som do vídeo fica em 0,15.
 - **Perguntar qualquer coisa.** Não há usuário no circuito.
 - **Olhar quadros brutos na conversa principal.** É trabalho do scout.
 - **Ler `footage.md` pela metade.**

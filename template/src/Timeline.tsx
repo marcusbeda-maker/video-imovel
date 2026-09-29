@@ -4,7 +4,8 @@
 // Todo dado do imóvel deve vir do briefing ou da narração — nunca inventado.
 import { AbsoluteFill, Sequence } from 'remotion';
 import { Fundo } from './components/Fundo';
-import { ORIGEM } from './config';
+import { NARRACAO, ORIGEM } from './config';
+import { Narracao } from './components/Narracao';
 import { CorretorCard, Destaques, ImovelCard, Localizacao, Selo, WhatsAppCta, presetDaMarca } from './imovel';
 import { Legendas } from './Legendas';
 import { LEGENDAS } from './legendas.data';
@@ -14,7 +15,8 @@ const p = presetDaMarca(glass);
 
 export const Timeline: React.FC = () => (
   <AbsoluteFill style={{ background: '#000' }}>
-    <Fundo origem={ORIGEM} />
+    <Fundo origem={ORIGEM} volume={NARRACAO.volumeOriginal} />
+    <Narracao />
 
     {/* "Apartamento de três quartos no Setor Bueno por oitocentos e cinquenta mil" */}
     <Sequence from={15} durationInFrames={120}>

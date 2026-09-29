@@ -10,6 +10,8 @@ uma frase de briefing. Ele devolve o vídeo editado para **Reels (9:16)**,
 - **Selo** ("Pronto para morar", "Aceita financiamento")
 - **Cartão do corretor** (logo, nome, CRECI, @) e **botão de WhatsApp** com o número
 - Corte automático de silêncios e regravações
+- **Narração em 4 modos**: sua voz no vídeo, áudio gravado à parte, **voz
+  sintética pt-BR feminina ou masculina** a partir de um roteiro, ou só texto
 
 Tudo roda no seu computador: a transcrição é local (whisper.cpp), sem chave de
 API e sem mandar o vídeo para lugar nenhum.
@@ -60,6 +62,48 @@ corretor e sem número no botão de WhatsApp.
 
 Saída em `exports/final/` ao lado do vídeo, mais `edit/decisions.md` (tudo o
 que ele decidiu e por quê) e `edit/ficha.md` (cada dado mostrado e de onde veio).
+
+## Narração
+
+| Modo | Exemplo de comando |
+|---|---|
+| Sua voz (no próprio vídeo) | `/video-imovel apto.mp4 reels` |
+| Áudio gravado à parte | `/video-imovel apto.mp4 reels narração C:\audios\minha-voz.m4a` |
+| Voz feminina | `/video-imovel apto.mp4 reels voz feminina roteiro: Aproveite a oportunidade...` |
+| Voz masculina | `/video-imovel apto.mp4 reels voz masculina roteiro: C:\textos\roteiro.txt` |
+| Só texto | `/video-imovel apto.mp4 reels só texto roteiro: Aproveite a oportunidade...` |
+
+Vozes sintéticas (grátis, sem chave, precisam de internet), pelo
+[edge-tts](https://github.com/rany2/edge-tts):
+**Francisca** (feminina, `pt-BR-FranciscaNeural`) e **Antonio** (masculina,
+`pt-BR-AntonioNeural`). Sem internet, a voz masculina offline é a
+`pt_BR-faber-medium` do [Piper](https://github.com/OHF-Voice/piper1-gpl) — o
+Piper não tem voz feminina pt-BR oficial.
+
+> O edge-tts usa o serviço de leitura em voz alta do navegador Edge, que não é
+> uma API oficial da Microsoft para uso comercial. Para anúncios em volume, a
+> alternativa oficial é o Azure Speech (as mesmas vozes, com chave e cota
+> grátis mensal) ou um serviço pago como a ElevenLabs.
+
+### Instalar as vozes (passo a passo, Windows)
+
+No PowerShell:
+
+```powershell
+pip install edge-tts
+edge-tts --voice pt-BR-FranciscaNeural --text "Aproveite a oportunidade de ter esse imóvel único pelo valor de 850 mil reais, aceita financiamento, além da ótima localização. Fale comigo agora!" --write-media "$env:USERPROFILE\Desktop\voz-feminina.mp3"
+edge-tts --voice pt-BR-AntonioNeural --text "Aproveite a oportunidade de ter esse imóvel único pelo valor de 850 mil reais, aceita financiamento, além da ótima localização. Fale comigo agora!" --write-media "$env:USERPROFILE\Desktop\voz-masculina.mp3"
+```
+
+Os dois MP3 aparecem na Área de Trabalho. As vozes do edge-tts não são
+baixadas: são geradas online na hora.
+
+Voz offline (opcional, só masculina):
+
+```powershell
+pip install piper-tts
+python -m piper.download_voices pt_BR-faber-medium --download-dir "$env:USERPROFILE\.cache\piper-voices"
+```
 
 ## Testar sem gravar nada
 
